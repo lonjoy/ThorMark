@@ -1,0 +1,19 @@
+{
+  "name": "test-readability",
+  "version": "1.0.0",
+  "description": "Test for readability, which turns web page into clean view.",
+  "main": "main.js",
+  "dependencies": {
+    "node-readability": "^2.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "test",
+    "readability"
+  ],
+  "author": "lhzbxx",
+  "license": "MIT"
+}

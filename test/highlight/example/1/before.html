@@ -1,0 +1,288 @@
+<div class="text_info text_info_article"><span>
+		
+			
+	       	</span><p>迄今为止，在创建Web应用方面，AngularJS是当前最为流行的JavaScript框架。如今，Angular 2和TypeScript通过一种非常类似于Java 8的语法，使真正面向对象的Web开发成为了主流。
+</p><p>据Google的工程主管Brad Green介绍，有130万开发人员在使用AngularJS并且30万开发人员已经使用了即将发布的Angular 2。在使用了Angular 2近十个月后，我相信它对JavaScript社区的影响就像当年Spring框架对Java的影响那样深远。
+</p><p>在本文中，我们将会在宏观层面上概要阐述Angular 2框架。
+</p><p>在2014年底，Google宣布Angular 2将会对AngularJS进行完全地重写，他们甚至还创建了一门新的语言，名为“AtScript”，他们本来希望使用这门语言来编写Angular 2应用。
+</p><p>但是，随后Microsoft同意在它们的TypeScript语言（JavaScript的一个严格超集）上添加对装饰符（decorator，又称为注解）的支持，所以，它就成为了开发Angular 2框架本身所使用的语言，并且还是使用AngularJS框架开发应用的推荐语言。
+</p><p>另外，我们还可以使用JavaScript（ECMAScript 5和6均可）和Dart来编写Angular 2应用。
+</p><p>除此之外，Angular团队还集成了Microsoft的另外一个产品到Angular 2框架之中，这就是反应型JavaScript扩展（reactive JavaScript extension）的RxJS库。
+</p><p>Angular 2并不是一个MVC框架，而是基于组件（component）的框架。在Angular 2中，应用是松耦合组件所组成的树。
+</p><p>例如，如下的截屏中展现了一个简单的在线拍卖应用的首页面，它最初的原型是由一组Navbar、Search、Carousel、Product和Footer组件所构成的。
+</p><p><img _href="img://null" _p="true" src="http://cdn3.infoqstatic.com/statics_s1_20160622-0236/resource/articles/Angular2-TypeScript-High-Level-Overview/zh/resources/030.jpg" width="550"></p><span>
+			</span><span>
+	        
+	        
+</span><p>按照上面的图片所示，我们渲染了三个Product组件。自动渲染是通过将模板与服务器端获取到的组件数组进行绑定来完成的。每个产品的名称都会是一个链接，指向相关产品的详情页面。因为我们想把这个拍卖应用设计为单页应用（single page application，SPA），所以我们不希望刷新整个页面来展现产品详情。我们会重用当前轮播（carousel）和产品列表已经占据的区域，所以它会渲染产品的详情，同时保持页面的其他内容不变。这项任务通过几个简单的步骤就能完成：
+</p><ol>
+<li>使用Angular的<a href="https://angular.io/docs/ts/latest/api/router/RouterOutlet-directive.html">router-outlet</a>指令，它允许我们将当前轮播和产品列表占据的区域声明为&lt;router-outlet&gt;，这样的话，它就能基于用户的导航变换内容； 
+</li><li>将Carousel和Product封装到Home组件中； 
+</li><li>创建一个新的ProductDetail组件； 
+</li><li>配置Angular的Router在特定的&lt;router-outlet&gt;区域要么显示Home组件，要么显示ProductDetail组件。</li></ol><span>
+</span><p>关于组件，我们已经讨论了很多，但是到目前为止，还没有对其进行定义。在TypeScript中，组件就是带有@Component的简单类：</p><pre>@Component({
+  selector: 'auction-home',
+  template: `
+    HTML或其他标记内联在此处
+  `
+})
+export default class HomeComponent {
+
+ // 应用逻辑放在此处
+} </pre><span>
+</span><p>@Component注解用来定义组件及其相关的元数据。在本例中，<em>selector</em>属性的值指明了要展现本组件的HTML标签名称。<em>template</em>属性是一个HTML（或其他）标记的占位符。
+</p><p>回到我们的拍卖应用首页，顶层ApplicationComponent组件的模板可能会如下所示：
+</p><p><img _href="img://null" _p="true" src="http://cdn3.infoqstatic.com/statics_s1_20160622-0236/resource/articles/Angular2-TypeScript-High-Level-Overview/zh/resources/031.jpg" width="550"></p><span>
+	        
+	            
+
+
+
+
+
+
+
+
+
+    </span><span>
+
+	        
+	        
+	       	
+</span><p>这个模板是由标准的和自定义的HTML标签所组成的，自定义标签代表了对应的组件。在本例中，我们使用的是内联HTML。如果你更喜欢将标签存储在单独的文件中的话（比如在<em>application.html</em>文件中），那么我们将会使用templateURL属性来代替template，ApplicationComponent的代码将会看起来如下所示：</p><pre>import {Component} from 'angular2/core';
+import {Route, RouteConfig, RouterOutlet} from 'angular2/router';
+import HomeComponent from '../home/home';
+import NavbarComponent from '../navbar/navbar';
+import FooterComponent from '../footer/footer';
+import SearchComponent from '../search/search';
+import ProductDetailComponent from "../product-detail/product-detail";
+
+@Component({
+  selector: 'auction-application',
+  templateUrl: 'app/components/application/application.html',
+  directives: [
+    RouterOutlet,
+    NavbarComponent,
+    FooterComponent,
+    SearchComponent,
+    HomeComponent
+  ]
+})
+@RouteConfig([
+  {path: '/', component: HomeComponent, as: 'Home'},
+  {path: '/products/:id', component: ProductDetailComponent, as: 'ProductDetail'}
+])
+export default class ApplicationComponent {} </pre><span>
+</span><p>ApplicationComponent类使用了@Component和@RouteConfig（对于依赖URL的内容）注解。selector属性的值将会用来指定用户定义的HTML标签&lt;auction-application&gt;。templateURL属性指定了标记所在的位置。directives区域包含了RouterOutlet以及所有的子组件。
+</p><p>@RouteConfig注解为客户端导航配置了两个<em>route</em>：
+</p><ul>
+<li>对于名为Home的route，其内容将会由HomeComponent来渲染，并且映射到了URL片段“/”。 
+</li><li>对于名为ProductDetail的route，其内容将会由ProductDetailComponent来渲染，并且映射到了URL片段“/product:id”。</li></ul><span>
+</span><p>当用户点击一个特定产品的标题时，默认的Home route的内容将会替换为ProductDetail route的内容，它会提供参数id的值并将产品的详情展现在&lt;router-outlet&gt;区域。例如，导航至ProductDetail route的链接会将产品id的值 1234作为参数，它看起来会如下所示：
+</p><p><strong><small>&lt;a [routerLink]="['/ProductDetail', {'prodId': 1234}]"&gt;{{ product.id }}&lt;/a&gt;</small></strong>
+</p><h2>依赖注入</h2><span>
+</span><p>组件使用<em>服务（service）</em>来实现业务逻辑。服务是由Angular实例化并注入到组件中的类。</p><pre>export class ProductService {
+  products: Product[] = [];
+  getProducts(): Array {
+    // 获取产品的代码放在这里
+    return products;
+  }
+} </pre><span>
+</span><p>现在，如果在HomeComponent的构造器中指定一个ProductService类型的参数，那么将会自动实例化该服务并将其注入到组件中：</p><pre>@Component{
+ ...
+}
+export default class HomeComponent {
+  products: Product[] = [];
+
+  constructor(productService: ProductService) {
+    this.products = productService.getProducts();
+  }
+}</pre><span>
+</span><p>Angular的依赖注入模块是很灵活的，它很易于使用，因为对象只能通过构造器来实现注入。注射器（injector）形成了层级的结构（每个组件都会有一个注射器），可注入的对象并不一定必须要在应用级别保持单例，不过，这是Spring默认的做法。
+</p><h2>跨组件通信</h2><span>
+</span><p>组件通信能够也应该按照一种松耦合的方式来实现。组件可以声明输入和输出属性。要将数据从父组件传递到子组件的话，父组件需要将值绑定到子组件的输入属性上。子组件不需要关心谁来提供值，它只需要知道如何处理这些值即可。
+</p><p>如果某个组件需要将数据传递到外部世界，那么它可以通过输出属性发布事件。将事件发布给谁呢？这就不是组件的业务所要关心的了。如果对其感兴趣的话，可以创建一个针对自定义组件事件的监听器。
+</p><p>这种机制允许我们将组件视为黑盒，它能够获取值或将数据发送出来。我最近录制了一个<a href="https://yakovfain.com/2016/03/21/implementing-the-mediator-design-pattern-in-angular-2/">简短的视频</a>，你可能会发现它有一定的用处，它阐述了在Angular 2中，Mediator设计模式的一种实现。
+</p><h2>为何采用TypeScript</h2><span>
+</span><p>TypeScript是JavaScript的超集，但是它类似于Java，允许我们定义新的类型。定义变量的时候会使用类型而不是泛指的<em>var</em>，这就为新工具的支持打开了一道门，你会发现这些工具将会带来极大的生产效率提升。TypeScript自带了一个静态代码分析器，我们还可以在能够感知TypeScript的IDE（WebStorm/IntelliJ Idea、Visual Studio Code、Sublime Text等）中，直接进入到代码之中，它们能够基于上下文，为我们提供帮助，会指导我们使用对象中可用的方法或函数参数的类型。如果你不小心使用了错误的类型，IDE将会高亮显示错误的代码。你可以参考<a href="http://blog.jetbrains.com/webstorm/2016/04/angular-2-workflow-in-webstorm/">这里</a>了解WebStorm是如何支持TypeScript的。
+</p><p>即便你的TypeScript应用用到了JavaScript编写的第三方库，你也可以安装一个类型定义文件（扩展名为.d.ts），这个文件包含了这个库的类型声明。针对上百个流行的JavaScript库的类型定义都可以免费获取，我们能够使用<a href="https://github.com/typings/typings">Typings</a>非常容易地安装它们，Typings是一个TypeScript的定义管理器（TypeScript Definition Manager）。假设你想要在TypeScript代码中使用jQuery（使用JavaScript所编写的），针对jQuery的类型定义文件将会包含所有jQuery API的声明（及类型），所以IDE能够提示可以使用哪些类型，或者高亮显示有错误的代码。
+</p><h2>性能与渲染</h2><span>
+</span><p>渲染性能在Angular 2中得到了充分地提升。最为重要的是，渲染模块位于一个独立的模块之中，这样的话，就允许我们将大量计算（computation-heavy）的代码在一个worker线程中运行。你可以访问<a href="http://www.roblog.io/js-repaint-perfs/">Repaint Rate Challenge Web站点</a>来比较各个框架的渲染性能。对于大数据量且数据持续变化的表格，你将会感受到它的渲染是非常迅速的。运行名为“DBMON Angular 2.0 Beta - Web Workers”的测试，这是一个大数据量的表格并且数据会持续刷新（在一个单独的线程中），浏览器对它的重绘极其迅速。
+</p><p>如果你要问Angular 2区别于其他框架的特性是什么的话，在我的列表中第一项就会是这个用于模板渲染的独立模块和zones：
+</p><ul>
+<li>我们将组件的UI声明在独立的模板中，并且会由独立的渲染器来进行处理，这样在这方面就有了一个新的机会，这个机会所涵盖的范围从优化和预编译模板，到为不同的设备创建并渲染模板； 
+</li><li>模块zone.js会监控应用中的变化，并确定在何时更新每个组件的UI。每个组件中UI的重绘都是通过异步事件触发的，它运行起来会非常快。</li></ul><span>
+</span><p><small><strong>注意</strong>：</small>
+</p><blockquote>
+<p><small>对于大多数的应用来说，你并不需要了解zone.js的内部原理，但是，如果你正在为一个复杂的应用进行UI渲染的优化，那么抽出一点时间研究一下zone的内部工作原理对你还是很有好处的。</small></p></blockquote><span>
+</span><p>通过将渲染引擎放到一个单独的模块中，第三方的贡献者就可以将默认的DOM渲染器替换为其他的渲染器，从而用于非基于浏览器的平台。例如，这允许我们跨设备重用应用程序的代码，针对移动设备的UI渲染器可以使用原生的组件。TypeScript类的代码会保持相同，但是@Component注解的内容将会包含XML或其他用于渲染原生组件的语言。在<a href="http://angularjs.blogspot.com/2016/03/code-reuse-in-angular-2-native-mobile.html?view=classic">NativeScript框架</a>中已经实现了自定义的Angular 2渲染器，该框架可以作为连接JavaScript和原生iOS及Android UI组件的桥梁。借助NativeScript，你可以重用组件的代码，只需将模板中的HTML替换为XML即可。还有自定义的UI渲染器允许我们<a href="http://angularjs.blogspot.ru/2016/04/angular-2-react-native.html">将Angular 2与React Native</a>组合在一起使用，它是为iOS和Android创建原生（非混合）UI的另一可选方案。
+</p><h2>工具</h2><span>
+</span><p>尽管Angular 2应用的语法和架构都比AngularJS 1.X容易理解得多，但是它的工具会稍微复杂一些。这也并不令人惊讶，毕竟我们使用一门语言来编写代码，却需要使用另外一门语言来进行部署，因为所有的内容都需要编译为JavaScript。
+</p><p><a href="https://github.com/angular/angular-cli">Angular CLI</a>项目目前正在进行中，它承诺会提供一个命令行接口，大幅度简化各种流程，涵盖的范围从初始的项目创建到生产环境的部署。
+</p><p>应用调试可以在IDE中进行，也可以在浏览器中进行。我们使用Chrome Developer Tools来进行调试。所生成的代码映射能够让我们调试时使用TypeScript代码，而浏览器中运行的是JavaScript。如果你更愿意调试JavaScript的话，这也是可行的，因为TypeScript transpiler所生成的JavaScript是适于人类阅读的。
+</p><h2>测试和部署</h2><span>
+</span><p>Angular 2自带了一个测试库，它能够让我们按照BDD的格式编写单元测试。目前，它只支持Jasmine框架，不过对其他框架的支持正在实现之中。我们使用了Karma test runner，它能够针对各种浏览器运行测试。
+</p><p>借助Protractor框架，我们能够为应用编写端到端的测试。如果你在开发模式下，在加载一个简单应用的同时监控网络的话，你会发现浏览器的下载超过了5Mb（其中的一半是模块加载器所使用的TypeScript编译器，SystemJS）。但是运行部署和优化的脚本（我们使用的是Webpack bundler）之后，小型应用的规模能够减小到160K（包括Angular 2）框架。我们正在热切期待Angular CLI会如何实现生产环境的打包。Angular团队在做一个离线模板编译功能，它能够将框架的大小减至50Kb。
+</p><h2>UI组件库</h2><span>
+</span><p>在撰写本文之时，有多个UI组件库是可以和Angular 2应用组合在一起使用的：
+</p><ul>
+<li><a href="http://www.primefaces.org/primeng/">PrimeNG</a>——由PrimeFaces（与JavaServer Faces框架协同使用的一个流行的库）的创建者所维护的一个Angular 2 UI组件库； 
+</li><li><a href="https://wijmo.com/angular2/">Wijmo 5</a>——一个商业的Angular 2 UI组件库，必须要购买开发者许可证才能使用它； 
+</li><li><a href="https://www.polymer-project.org/1.0/">Polymer</a>——Google所提供的一个外观漂亮且可扩展的组件库。在我们公司中，我们使用Polymer组件创建过一个实验性的Angular 2应用，但是它们两者的集成还有提升的空间； 
+</li><li><a href="https://github.com/angular/material2">Material Design 2</a>——Google专门为Angular 2所开发的UI组件库。目前，这个库处于早期的Alpha版，但是开发状态非常活跃，在未来的三四个月中，我期待能够看到十几个设计良好的UI组件； 
+</li><li><a href="http://ng-lightning.github.io/ng-lightning/">NG-Lightning</a>——一个Angular 2的组件和指令库，它是使用TypeScript和Lightning Design System CSS框架完全从头编写的。</li></ul><span>
+</span><h2>现在，使用Angular 2安全吗？</h2><span>
+</span><p>在Farata Systems，我们从第一个Beta释放版本就将Angular 2到了实际的项目之中，在这个过程中并没有遇到严重的问题，至少没有遇到过找不到解决方法的问题。
+</p><p>如果你希望更安全的话，那么可以再等几个月。据说，Angular 2的发布候选版本将会在2016年5月份的Google I/O会议上发布。（在ng-conf 2016召开前夕，<a href="http://www.infoq.com/cn/news/2016/05/angular-2-release-candidate">Angular 2已经发布了候选版本</a>。——译者注）
+</p><h2>将来会怎样呢？</h2><span>
+</span><p>在2016年3月O’Reilly举办的Fluent会议上，Brad Green做了一个keynote演讲，可以观看该演讲的 <a href="https://www.oreilly.com/ideas/angular-2-and-the-future-of-html5-apps">视频</a>。你被感染到了吗？反正我是被感染了。
+</p><h2>关于作者</h2><span>
+</span><p><img _href="img://null" _p="true" src="http://cdn3.infoqstatic.com/statics_s1_20160622-0236/resource/articles/Angular2-TypeScript-High-Level-Overview/zh/resources/032.jpg"><strong>Yakov Fain</strong>住在纽约，他是一位Java Champion，并且是IT咨询公司Farata Systems的合伙人。他领导着Princeton JUG，写过很多关于软件开发的文章以及多本图书。最近，他与别人合著了《Angular 2 Development with TypeScript》，这本书将会在2016年6月由Manning出版。Yakov经常在技术会议上演讲，并且参与讲授Java和Angular 2。他的博客是<a href="http://yakovfain.com/">yakovfain.com</a>。</p><span>
+</span><p><strong>查看英文原文：</strong><a href="http://www.infoq.com/articles/Angular2-TypeScript-High-Level-Overview">Angular 2 and TypeScript - A High Level Overview</a>
+	       	
+       	
+		</p><span>
+		
+
+
+
+
+
+
+
+
+</span><span>
+		</span><span>
+      
+		
+		
+		
+			
+			
+			
+
+
+
+
+
+
+
+
+</span><span>
+
+
+</span><script type="text/javascript">
+    $.ajax({
+        url: "/api/recommendationlinks.action",
+        contentType: "application/x-www-form-urlencoded; charset=utf-8",
+        type: 'POST',
+        data: {"topicIds": "1,685,3000,251,3395,-1000,-1000", "title": "Angular 2与TypeScript概览", "contentPath": "/articles/Angular2-TypeScript-High-Level-Overview", "language": "zh"},
+        success: displayRelatedEditorial,
+        async: false
+    });
+    
+    function displayRelatedEditorial(data) {
+        var trackingCode = "?utm_source=infoq&utm_medium=related_content_link&utm_campaign=relatedContent_articles_clk";
+        if (data.length > 0) {
+            for (var i = 0; i < data.length; i++) {
+                if (i === 5) {
+                    break;
+                }
+                var link = $('<h3 title="" class="' + data[i].contentType + '">\n\
+                                    <a title="" href="' + data[i].url + trackingCode +
+                        '">' + data[i].title + '</a></h3>');
+                $('#editorial_links').append(link);
+            }
+            $('.gray_section_related > .related_editorial.recommended').css('display', 'block');
+        }
+    }
+</script><span> 
+
+
+</span><script type="text/javascript">
+    
+        $(function() {
+        	var grayBox = $('.gray_section_related');
+            var recommendedColumn = $('.gray_section_related > .related_editorial.recommended');
+            var recommendedExists = $(recommendedColumn).css('display') === 'block';
+            var researchRow = $('.related_research');
+            var researchExists = $(researchRow).css('display') === 'block';
+
+            if (recommendedExists || researchExists) {
+                $('.related_sponsors.relEdRelRes').show(); // show the big related box
+            }
+
+            // in case all three available, leave now
+            if (recommendedExists) {
+            	$(grayBox).show(); // show the gray box for vcr and recommendations
+                return;
+            }
+        });
+</script><span>
+</span><span>
+		
+		
+
+		</span><span>
+				
+		
+		
+			
+		
+
+
+
+
+
+
+</span><script type="text/javascript">
+
+    var JSi18n = JSi18n || {}; // define only if not already defined
+    JSi18n.re='Re:';
+    JSi18n.errorSubject='Please enter a subject.';
+    JSi18n.errorBody='You can not post a blank message. Please type your message and try again.';
+    JSi18n.errorInvalidLinks='您的回复中包含无效的链接，请检查后重试';
+    JSi18n.stopWatchText='Stop Watching Thread';
+    JSi18n.startWatchText='Watch Thread';
+    JSi18n.timeExpiredMessage='已超出允许的5分钟编辑时长，我们为给您带来的不便深表抱歉。';
+    JSi18n.repostButtonFormat='重新发送 ($m 剩余)';
+    JSi18n.timeExpiredButton='超时';
+    JSi18n.sessionExpiredMessage='您的会话已超时，请登录后重新提交';
+    JSi18n.editLinkFormat='编辑 ($m 分钟剩余)';
+    JSi18n.enter_subject='请输入主题';
+    JSi18n.enter_message='信息';
+    JSi18n.content_datetime_format='yyyy年M月d日';
+
+var forumID=1;
+var threadID=51320;
+var ctxPath= '';
+var postAddress= ctxPath + '/forum/post!post.action?language=' + 'zh';
+var repostAddress= ctxPath + '/forum/repost.action?language=' + 'zh';
+var postAddWatches= ctxPath + '/forum/watches!add.action';
+var postRemoveWatches= ctxPath + '/forum/watches!remove.action';
+var threadWatched=false;
+var forumNotificationDefault=true;
+var commentEditPeriod=5;
+</script><span>
+
+</span><script type="text/javascript" src="/dwr/interface/ForumNotifications.js"></script><span>
+</span><script type="text/javascript" src="http://cdn2.infoqstatic.com/statics_s1_20160622-0236/scripts/ui/jquery.autosize.js"></script><span>
+</span><script type="text/javascript" src="http://cdn.infoqstatic.com/statics_s1_20160622-0236/scripts/date.js"></script><span>
+
+    </span><span>
+    </span><span>
+
+    </span><span>
+
+    </span><!-- overlay --><span>
+    </span><span>
+    </span><!-- reply box --><span>
+    </span><span>
+    </span><!-- edit comment box --><span>
+    </span><span>
+    </span><!-- notification popup --><span>
+    </span><span>
+    </span><span>
+	</span><span>
+
+	</span></div>

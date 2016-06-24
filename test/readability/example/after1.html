@@ -1,0 +1,266 @@
+<div class="text_info"><span>
+   		</span><p>在2015年的618大促中，京东大胆启用了<a href="http://www.infoq.com/cn/news/2015/06/jd-618-docker">基于Docker的容器技术</a>来承载大促的关键业务（图片展现、单品页、团购页），当时基于Docker容器的弹性云项目已经有近万个Docker容器在线上环境运行，并且经受住了大流量的考验。而今年618，弹性云项目更是担当重任，全部应用系统和大部分的DB服务都跑在Docker上。像618大促这样的流量高峰期，弹性云可以自动管理资源，做到弹性扩展，而在流量低谷期，又可以进行资源回收，在提升资源利用率的同时确保了运维系统的稳定性。据官方估计，本次大促活动中，京东线上将会启动近15万个Docker容器，从数量上来看，京东是全球范围内Docker的应用大户之一。</p><span>
+
+</span><p>为了了解相关的详情，InfoQ记者采访了弹性云项目负责人鲍永成。此外，鲍永成将会在InfoQ主办的<a href="http://www.cnutcon.com/">CNUTCon全球容器技术大会</a>上分享本次618大促的具体技术细节，欢迎关注。</p><span>
+
+</span><h4 id="受访嘉宾介绍">受访嘉宾介绍</h4><span>
+
+</span><p><strong>鲍永成</strong>，京东弹性计算组项目负责人，带领弹性计算团队，深耕IaaS领域，致力于打造京东强大的虚拟化平台。2013年初加入京东，重点在京东弹性云平台系统研发，运营多个中大规模IaaS集群，包括（京东弹性云、公有云、混合云等产品），在OpenStack研发&amp;性能优化、自动化部署、KVM、Docker、分布式系统等方面有一定的实践经验。</p><span>
+
+</span><p><strong>InfoQ：去年618的时候，我们就有聊过京东Docker的应用情况。您能对比去年618，介绍下今年的规模、应用以及调整吗？</strong></p><span>
+
+</span><blockquote>
+<p><strong>鲍永成：</strong>从数量上来讲，去年618线上容器应对峰值为9千个实例，今年截止6月17日线上容器突破15万实例；在整体布局上来看，对比去年618，弹性云在规模上和业务全容器化实现战略落地。<br>在应用层面，京东所有应用100%通过容器技术来发布和管理应用集群。值得指出一点：今年618有5600个容器实例支撑DB集群，对京东云数据库提供非常便利的支持。<br>弹性云核心架构没有很大变化，依然简洁定义：弹性云=软件定义数据中心+业务容器集群调度。在此基础上，有两点增强：</p>
+
+<ul>
+	<li>单个容器的稳定性和性能方面做了很大提升，有效满足核心系统对计算和网络的巨大需求；</li>
+	<li>统一管理物理机、虚拟机和容器，加入统一集群进行调度，以适应不同业务对计算资源的不同需求；</li>
+</ul>
+
+<p><img _href="img://01.jpg" alt="" src="http://cdn.infoqstatic.com/statics_s1_20160622-0236/resource/news/2016/06/jd-618-docker-cloud-practice/zh/resources/01.jpg"></p>
+
+<p><img _href="img://02.jpg" alt="" src="http://cdn.infoqstatic.com/statics_s1_20160622-0236/resource/news/2016/06/jd-618-docker-cloud-practice/zh/resources/02.jpg"></p>
+</blockquote><span>
+
+</span><p><strong>InfoQ：您能介绍下有哪些业务全量跑在Docker上吗？为了迎接这样的挑战，架构做了哪些调整？</strong></p><span>
+
+</span><blockquote>
+<p><strong>鲍永成</strong><b>：</b>网站、交易、无线、微信手Q等全部应用系统和DB服务的大部分都跑在Docker上。<br>因为京东业务在多年前就开始微服务化治理，所以应用层架构调整很小。现如今微服务化比例已经很大，所以容器技术的融入比较顺利。弹性云平台，算是站在多年对各个业务系统微服务化治理的巨人肩膀上。</p>
+</blockquote><span>
+
+</span><p><strong>InfoQ：这么多容器，如何做到海量监控？采用了什么开源方案吗？有哪些注意的事项？</strong></p><span>
+
+</span><blockquote>
+<p><strong>鲍永成</strong><b>：</b>监控采取自主研发系统，该系统负责海量数据采集和存储工作，其构架如图。</p>
+
+<p><img _href="img://03.jpg" alt="" src="http://cdn.infoqstatic.com/statics_s1_20160622-0236/resource/news/2016/06/jd-618-docker-cloud-practice/zh/resources/03.jpg"></p>
+
+<p>对于15W+容器监控，需要注意：指标采集传输一定要设计得非常高效，并且要做到采集过程对资源的消耗控制，建议使用加速告警和监控图表跟踪缓存状况。</p>
+</blockquote><span>
+
+</span><p><strong>InfoQ：在洪峰来临之时，弹性计算云平台是如何进行扩容的？可以从系统角度分享下其中的流程吗？</strong></p><span>
+
+</span><blockquote>
+<p><strong>鲍永成</strong><b>：</b>弹性云有两种模式：</p>
+
+<ul>
+	<li>自动模式会根据每个业务方自己的预设弹性扩展条件，自动触发扩容。扩容工作包括使用业务镜像spawn实例、自动DB授权、微服务框架注册、添加实例到LB负载。</li>
+	<li>手动模式的前提是有弹性事件被触发，垂直运维收到扩展确认消息，人工参与的只是这个消息的点击确认扩容环节，其后续流程与自动模式一致。</li>
+</ul>
+</blockquote><span>
+
+</span><p><strong>InfoQ：可以谈谈目前应用了哪些关键开源项目吗？各自在系统的哪些level？对应的版本分别是什么？</strong></p><span>
+
+</span><blockquote>
+<p><strong>鲍永成</strong><b>：</b>主要是OpenStack和Docker，具体如下：</p>
+
+<ul>
+	<li>OpenStack-IceHouse 用于管理数据中心计算、网络、存储等资源，位于JD Data Center Operating System层。</li>
+	<li>Docker-1.3用于spawn容器实例，加入很多自主研发的内容和功能。</li>
+</ul>
+</blockquote><span>
+
+</span><p><strong>InfoQ：这么多的容器，您觉得最大的挑战是什么？</strong></p><span>
+
+</span><blockquote>
+<p><strong>鲍永成</strong><b>：</b>1. <strong>集群规模</strong><b>：</b>介于高效运维，弹性云集群走的是大集群架构的思路。单个OpenStack集群会建设得非常大，目前单集群规模控制在6千台计算节点左右。<br>管理6K台计算节点集群，仅仅使用原生OpenStack是很困难的，因此我们对OpenStack依赖的数据库、MQ等全部重新设计实现，设计经过测试可以支撑1W台计算节点。<br>2. <strong>单实例性能调优</strong><b>：</b>很多核心的业务对单个请求的响应时间有极其严格要求，这势必要求弹性云提供的每一个容器实例均要具有极好的性能，我们从CPU和网络两方面入手。<br>针对CPU，我们采取Scale-up算法灵活调配CPU分配，使繁忙业务可以及时获得足够多CPU资源。<br>在网络这块，主攻方向为如何把万兆卡的性能发挥出来。我们对OVS（Open vSwitch）做了一些改进：减少了一些锁，优化peer port和网卡中断。这带来近乎物理机网卡的网络性能。</p>
+
+<p><img _href="img://04.jpg" alt="" src="http://cdn.infoqstatic.com/statics_s1_20160622-0236/resource/news/2016/06/jd-618-docker-cloud-practice/zh/resources/04.jpg"></p>
+</blockquote><span>
+
+</span><p><strong>InfoQ：这么大规模的Docker应用，在国内外都是屈指可数的。在整个容器化的进程，你们得到了什么，失去了什么？</strong></p><span>
+
+</span><blockquote>
+<p><strong>鲍永成</strong><b>：</b>京东弹性计算云通过软件定义数据中心与大规模容器集群调度，实现海量计算资源的统一管理，并满足性能与效率方面的需求。<br>提升业务自助上线效率。应用部署密度大幅提升，资源使用率提升，节约大量的硬件资源。</p>
+
+<p>而面临的调整也很多，比如内核因为bug升级。全部容器化后，底层依赖系统的版本高度一致，很容易带来因为底层bug需要规模性升级，幸运的是我们在内核团队建设这块一直非常重视，已经有内核发布版本、内核热patch等方式，有效解决此类问题。</p>
+</blockquote><span>
+
+</span><p><strong>InfoQ：在CNUTCon 2016全球容器技术大会上，你会重点分享哪些内容？</strong></p><span>
+
+</span><blockquote>
+<p><strong>鲍永成</strong><b>：</b>重点分享软件定义数据中心、大规模容器集群调度以及Docker容器性能调优。</p>
+</blockquote><span>
+
+</span><p><strong>InfoQ：感谢鲍永成老师接受我们的采访。期待您在<a href="http://www.cnutcon.com/">CNUTCon 2016全球容器技术大会</a>上的分享。</strong></p><span>
+
+</span><p>感谢<a href="http://www.infoq.com/cn/author/%E9%83%AD%E8%95%BE">郭蕾</a>对本文的审校。</p><span>
+
+        </span><span>
+		
+
+
+
+
+
+
+
+
+</span><span>
+        </span><span>
+		</span><span>
+		
+		
+		
+		
+		
+	   	
+
+
+
+
+
+
+
+
+</span><span>
+
+
+</span><script type="text/javascript">
+    $.ajax({
+        url: "/api/recommendationlinks.action",
+        contentType: "application/x-www-form-urlencoded; charset=utf-8",
+        type: 'POST',
+        data: {"topicIds": "5500,3975,4661,4569,4875,-1000,-1000", "title": "京东618：15万个Docker实例，所有业务全部容器化", "contentPath": "/news/2016/06/jd-618-docker-cloud-practice", "language": "zh"},
+        success: displayRelatedEditorial,
+        async: false
+    });
+    
+    function displayRelatedEditorial(data) {
+        var trackingCode = "?utm_source=infoq&utm_medium=related_content_link&utm_campaign=relatedContent_news_clk";
+        if (data.length > 0) {
+            for (var i = 0; i < data.length; i++) {
+                if (i === 5) {
+                    break;
+                }
+                var link = $('<h3 title="" class="' + data[i].contentType + '">\n\
+                                    <a title="" href="' + data[i].url + trackingCode +
+                        '">' + data[i].title + '</a></h3>');
+                $('#editorial_links').append(link);
+            }
+            $('.gray_section_related > .related_editorial.recommended').css('display', 'block');
+        }
+    }
+</script><span> 
+
+
+</span><script type="text/javascript">
+    
+        $(function() {
+        	var grayBox = $('.gray_section_related');
+            var recommendedColumn = $('.gray_section_related > .related_editorial.recommended');
+            var recommendedExists = $(recommendedColumn).css('display') === 'block';
+            var vcrColumn = $('.gray_section_related > .related_editorial.sponsored');
+            var vcrExists = $(vcrColumn).length === 1;
+            var sponsorshipColumn = $('.related_sponsors > .s')
+            var sponsorshipExists = $(sponsorshipColumn).length === 1;
+            var researchRow = $('.related_research');
+            var researchExists = $(researchRow).css('display') === 'block';
+
+            if (recommendedExists || vcrExists || sponsorshipExists || researchExists) {
+                $('.related_sponsors.wholething').show(); // show the big related box
+            }
+			
+            if(recommendedExists || vcrExists){
+            	$('.gray_section_related').show(); // show the gray box for vcr and recommendations
+            }
+            
+            // in case all three available, leave now
+            if (recommendedExists && vcrExists && sponsorshipExists) {
+                return;
+            }
+            // in case only two of them available
+            if (recommendedExists && vcrExists && !sponsorshipExists) {
+                $(recommendedColumn).addClass('only2');
+                $(vcrColumn).addClass('only2last');
+                $(grayBox).addClass('only2 fullWidth');                
+            } else if (recommendedExists && sponsorshipExists && !vcrExists) {
+                $(recommendedColumn).addClass('only2');
+                $(sponsorshipColumn).addClass('only2last');
+                $(grayBox).addClass('only1');
+            } else if (vcrExists && sponsorshipExists && !recommendedExists) {
+                $(vcrColumn).addClass('only2');
+                $(sponsorshipColumn).addClass('only2last');
+                $(grayBox).addClass('only1');
+            }
+            // in case only one is available
+            else if (recommendedExists && !vcrExists && !sponsorshipExists) {
+                $(recommendedColumn).addClass('only1');
+                $(grayBox).addClass('only1 fullWidth');
+            } else if (vcrExists && !recommendedExists && !sponsorshipExists) {
+                $(vcrColumn).addClass('only1');
+                $(grayBox).addClass('only1 fullWidth');
+            } else if (sponsorshipExists && !recommendedExists && !vcrExists) {
+                $(sponsorshipColumn).addClass('only1');
+            }
+            // in case none is available, do not display upper border for the research category if any
+            else if (researchExists) {
+                $(researchRow).addClass('only1');
+            }
+        });
+</script><span>
+</span><span>
+
+		</span><span>
+
+		
+		
+			
+		
+
+
+
+
+
+
+</span><script type="text/javascript">
+
+    var JSi18n = JSi18n || {}; // define only if not already defined
+    JSi18n.re='Re:';
+    JSi18n.errorSubject='Please enter a subject.';
+    JSi18n.errorBody='You can not post a blank message. Please type your message and try again.';
+    JSi18n.errorInvalidLinks='您的回复中包含无效的链接，请检查后重试';
+    JSi18n.stopWatchText='Stop Watching Thread';
+    JSi18n.startWatchText='Watch Thread';
+    JSi18n.timeExpiredMessage='已超出允许的5分钟编辑时长，我们为给您带来的不便深表抱歉。';
+    JSi18n.repostButtonFormat='重新发送 ($m 剩余)';
+    JSi18n.timeExpiredButton='超时';
+    JSi18n.sessionExpiredMessage='您的会话已超时，请登录后重新提交';
+    JSi18n.editLinkFormat='编辑 ($m 分钟剩余)';
+    JSi18n.enter_subject='请输入主题';
+    JSi18n.enter_message='信息';
+    JSi18n.content_datetime_format='yyyy年M月d日';
+
+var forumID=1;
+var threadID=51361;
+var ctxPath= '';
+var postAddress= ctxPath + '/forum/post!post.action?language=' + 'zh';
+var repostAddress= ctxPath + '/forum/repost.action?language=' + 'zh';
+var postAddWatches= ctxPath + '/forum/watches!add.action';
+var postRemoveWatches= ctxPath + '/forum/watches!remove.action';
+var threadWatched=false;
+var forumNotificationDefault=true;
+var commentEditPeriod=5;
+</script><span>
+
+</span><script type="text/javascript" src="/dwr/interface/ForumNotifications.js"></script><span>
+</span><script type="text/javascript" src="http://cdn3.infoqstatic.com/statics_s1_20160622-0236/scripts/ui/jquery.autosize.js"></script><span>
+</span><script type="text/javascript" src="http://cdn1.infoqstatic.com/statics_s1_20160622-0236/scripts/date.js"></script><span>
+
+    </span><span>
+    </span><span>
+
+    </span><span>
+
+    </span><!-- overlay --><span>
+    </span><span>
+    </span><!-- reply box --><span>
+    </span><span>
+    </span><!-- edit comment box --><span>
+    </span><span>
+    </span><!-- notification popup --><span>
+    </span><span>
+    </span><span>
+	</span><span>
+
+	</span></div>

@@ -1,0 +1,19 @@
+{
+  "name": "test-to-markdown",
+  "version": "1.0.0",
+  "description": "Test for to-markdown, which converts html to markdown.",
+  "main": "main.js",
+  "dependencies": {
+    "to-markdown": "^3.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "test",
+    "to-markdown"
+  ],
+  "author": "lhzbxx",
+  "license": "MIT"
+}
