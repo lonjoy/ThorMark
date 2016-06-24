@@ -54,7 +54,7 @@ app.use(async (ctx) => {
 
 // error logger
 app.on('error', async (err, ctx) => {
-  console.log('error occured:', err)
+  console.log('Error occured:', err)
 })
 
 const port = parseInt(config.port || '3000')
