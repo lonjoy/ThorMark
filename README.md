@@ -1,27 +1,27 @@
 <p align="center">
   <a href="http://www.lhzbxx.top">
-    <img src="http://o707e746x.bkt.clouddn.com/logo.png?imageView2/2/w/250">    
+    <img src="http://o9ah325aa.bkt.clouddn.com/logo.png?imageView2/2/w/250">    
   </a>
 </p>
 <p align="center">
-  <a href="https://gitter.im/lhzbxx/SavePlus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
-    <img src="https://badges.gitter.im/lhzbxx/SavePlus.svg">
+  <a href="https://gitter.im/lhzbxx/ThorMark?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+    <img src="https://badges.gitter.im/lhzbxx/ThorMark.svg">
   </a>
-  <a href="https://SavePlus-slackin.herokuapp.com/">
-    <img src="https://SavePlus-slackin.herokuapp.com/badge.svg">
+  <a href="https://ThorMark-slackin.herokuapp.com/">
+    <img src="https://ThorMark-slackin.herokuapp.com/badge.svg">
   </a>
 </p>
-<p align="center">Save+记账类应用，共享账本、快速收录、预算报表，养成省钱好习惯。
+<p align="center">ThorMark，个人知识库的存储、共享和管理平台。
 </p>
 <p align="center">
-  <a href="https://github.com/lhzbxx/SavePlus/issues">
-    <img src="https://img.shields.io/github/issues/lhzbxx/saveplus.svg" alt="">
+  <a href="https://github.com/lhzbxx/ThorMark/issues">
+    <img src="https://img.shields.io/github/issues/lhzbxx/thormark.svg" alt="">
   </a>
-  <a href="https://github.com/lhzbxx/SavePlus/releases">
-    <img src="https://img.shields.io/github/release/lhzbxx/saveplus.svg" alt="">
+  <a href="https://github.com/lhzbxx/ThorMark/releases">
+    <img src="https://img.shields.io/github/release/lhzbxx/thormark.svg" alt="">
   </a>
-  <a href="https://github.com/lhzbxx/SavePlus/releases">
-    <img src="https://img.shields.io/github/downloads/lhzbxx/saveplus/total.svg" alt="">
+  <a href="https://github.com/lhzbxx/ThorMark/releases">
+    <img src="https://img.shields.io/github/downloads/lhzbxx/thormark/total.svg" alt="">
   </a>
 </p>
 <p align="center">
