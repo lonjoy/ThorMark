@@ -1,7 +1,7 @@
 var readability = require('node-readability');
 var fileSystem = require('fs');
 
-var urlToParse = "";
+var urlToParse = "http://blog.csdn.net/huachao1001/article/details/51536074";
 
 readability(urlToParse, function(err, article, meta) {
     console.log(article.title);
